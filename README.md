@@ -28,7 +28,7 @@ Then put this in a roc file and run `roc --opt=dev main.roc`:
 ```roc
 app [main!] {
 	pf: platform "https://github.com/roc-lang/basic-cli/releases/download/0.23.0-rc1/3hT3SoHZ6qbEsa9qVFLUW3547U5LeoNd1KbpqLpz4r1i.tar.zst",
-	redis: "https://github.com/jaredramirez/roc-redis/releases/download/0.1.0-rc4/8BsZJKf5j58G6rxgggefDWqmgfdDkYmJbNUSTb8NvRfC.tar.zst",
+	redis: "https://github.com/lukewilliamboswell/roc-redis/releases/download/0.1.0-rc5/AmMndy4GVcCnTyyewXbkRnbrTJ4st528pFzoSr9ausAk.tar.zst",
 }
 
 import pf.Tcp

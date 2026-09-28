@@ -12,7 +12,7 @@ NonEmptyBytes :: { bytes : Bytes.Bytes }.{
 			Ok(NonEmptyBytes.{ bytes })
 		}
 
-	from_quote : Str -> Try(NonEmptyBytes, [BadQuotedBytes(Str), ..])
+	from_quote : Str -> Try(NonEmptyBytes, [BadQuotedBytes(Str)])
 	from_quote = |text|
 		NonEmptyBytes.from_bytes(Bytes.from_str(text)).map_err(|_| BadQuotedBytes("expected non-empty bytes"))
 

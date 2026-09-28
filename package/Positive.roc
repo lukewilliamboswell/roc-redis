@@ -12,7 +12,7 @@ Positive :: { value : U64 }.{
 		Ok(Positive.{ value: value })
 	}
 
-	from_numeral : Numeral -> Try(Positive, [InvalidNumeral(Str), ..])
+	from_numeral : Numeral -> Try(Positive, [InvalidNumeral(Str)])
 	from_numeral = |numeral| {
 		value = U64.from_numeral(numeral)?
 		Positive.from_u64(value).map_err(|_| InvalidNumeral("expected a positive integer"))

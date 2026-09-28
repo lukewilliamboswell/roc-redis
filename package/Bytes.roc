@@ -9,7 +9,7 @@ Bytes :: { bytes : List(U8) }.{
 	from_str : Str -> Bytes
 	from_str = |text| Bytes.{ bytes: text.to_utf8() }
 
-	from_quote : Str -> Try(Bytes, [BadQuotedBytes(Str), ..])
+	from_quote : Str -> Try(Bytes, [BadQuotedBytes(Str)])
 	from_quote = |text| Ok(Bytes.from_str(text))
 
 	to_list : Bytes -> List(U8)
