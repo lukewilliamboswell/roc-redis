@@ -184,18 +184,13 @@ main! = |_args| {
 		broken_docs_output,
 	)?
 
-	require_known_failure!(
-		timeout_program,
-		"formatter directory reporting",
-		"roc",
-		["--opt=dev", fmt_directory_repro],
-		[
-			"failed `roc fmt --check`:",
-			"Alpha.ro\n    Alpha.roc",
-			"You can fix this with `roc fmt FILENAME.roc`",
-		],
-		["Beta.roc"],
-	)?
+	formatter_outcome = run_bounded!(timeout_program, "roc", ["--opt=dev", fmt_directory_repro])?
+	match formatter_directory_failure_shape(formatter_outcome.exit_code, formatter_outcome.output) {
+		MatchedKnownFailure => {}
+		UnexpectedSuccess => return fail_with_output!("formatter directory reporting appears fixed; review its workaround/repro", formatter_outcome.output)
+		WrongExit({ actual, expected }) => return fail_with_output!("formatter directory reporting failure shape changed; expected exit ${expected.to_str()}, received ${actual.to_str()}", formatter_outcome.output)
+		_ => return fail_with_output!("formatter directory reporting did not match either documented corruption variant", formatter_outcome.output)
+	}
 
 	Stdout.line!("Roc compiler bug checks matched their documented status.")
 		.map_err(|error| CheckFailed("could not write success message: ${Str.inspect(error)}"))?
@@ -349,6 +344,26 @@ known_failure_shape = |actual_exit, expected_exit, output, required_fragments, a
 	}
 }
 
+formatter_directory_failure_shape : I32, Str -> KnownFailureShape
+formatter_directory_failure_shape = |actual_exit, output| {
+	start = "The following file(s) failed `roc fmt --check`:"
+	end = "You can fix this with `roc fmt FILENAME.roc`"
+	common = known_failure_shape(actual_exit, 1, output, [start, end, "FormatterFailureObserved(1)"], [])
+	if common != MatchedKnownFailure {
+		return common
+	}
+	# The compiler corrupts different paths on the two tested hosts.
+	# Accept only the two observed diagnostics, never a correct list.
+	starts = output.split_on(start)
+	ends = (starts.get(1) ?? "").split_on(end)
+	listing = (ends.first() ?? "").trim()
+	if starts.len() == 2 and ends.len() == 2 and (listing == "Alpha.ro\n    Alpha.roc" or listing == "Beta.roc\u(0)\n    Beta.roc") {
+		MatchedKnownFailure
+	} else {
+		MissingFragments(["one documented formatter filename list"])
+	}
+}
+
 require_known_failure_with_exit! : Str, Str, Str, List(Str), I32, List(Str), List(Str) => Try({}, [CheckFailed(Str), ..])
 require_known_failure_with_exit! = |timeout_program, label, program, arguments, expected_exit, required_fragments, absent_fragments| {
 	outcome = run_bounded!(timeout_program, program, arguments)?
@@ -469,3 +484,16 @@ expect known_failure_shape(134, 134, "other", ["required"], []) == MissingFragme
 expect known_failure_shape(134, 134, "required forbidden", ["required"], ["forbidden"]) == UnexpectedFragments(["forbidden"])
 
 expect known_failure_shape(1, 1, "BrokenDocLinks unreported error", ["BrokenDocLinks", "unreported error"], []) == MatchedKnownFailure
+
+formatter_fixture_output = |paths| "The following file(s) failed `roc fmt --check`:    ${paths}\nYou can fix this with `roc fmt FILENAME.roc`.\nProgram exited with error: FormatterFailureObserved(1)\n"
+
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Alpha.ro\n    Alpha.roc")) == MatchedKnownFailure
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Beta.roc\u(0)\n    Beta.roc")) == MatchedKnownFailure
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Alpha.roc\n    Beta.roc")) != MatchedKnownFailure
+expect formatter_directory_failure_shape(0, formatter_fixture_output("Alpha.ro\n    Alpha.roc")) == UnexpectedSuccess
+expect formatter_directory_failure_shape(124, formatter_fixture_output("Alpha.ro\n    Alpha.roc")) == WrongExit({ actual: 124, expected: 1 })
+expect formatter_directory_failure_shape(2, formatter_fixture_output("Beta.roc\u(0)\n    Beta.roc")) == WrongExit({ actual: 2, expected: 1 })
+expect formatter_directory_failure_shape(1, "unrelated compiler failure") != MatchedKnownFailure
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Gamma.ro\n    Gamma.roc")) != MatchedKnownFailure
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Beta.roc\n    Beta.roc")) != MatchedKnownFailure
+expect formatter_directory_failure_shape(1, formatter_fixture_output("Alpha.ro\n    Alpha.roc\n    Gamma.roc")) != MatchedKnownFailure
