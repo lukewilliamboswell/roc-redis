@@ -15,7 +15,7 @@ SortedSets :: [].{
 	ScoreBound : [NegativeInfinity, PositiveInfinity, Inclusive(Bytes.Bytes), Exclusive(Bytes.Bytes)]
 	LexBound : [NegativeInfinity, PositiveInfinity, Inclusive(Bytes.Bytes), Exclusive(Bytes.Bytes)]
 	Limit : { offset : I64, count : I64 }
-	Range : [Ranks({ start : I64, end : I64 }), Scores({ min : ScoreBound, max : ScoreBound, limit : Reply.Optional(Limit) }), Lex({ min : LexBound, max : LexBound, limit : Reply.Optional(Limit) })]
+	SortedSetRange : [Ranks({ start : I64, end : I64 }), Scores({ min : ScoreBound, max : ScoreBound, limit : Reply.Optional(Limit) }), Lex({ min : LexBound, max : LexBound, limit : Reply.Optional(Limit) })]
 	Output : [Members, WithScores]
 	RangeResult : [Members(List(Bytes.Bytes)), WithScores(List(Scored))]
 	AddMode : [Add(NonEmpty.NonEmpty(Scored)), Increment(Scored)]
@@ -132,10 +132,10 @@ SortedSets :: [].{
 		)
 	}
 
-	zrange : Bytes.Bytes, Range, Bool, Output -> Request.Request(RangeResult, Reply.Error)
+	zrange : Bytes.Bytes, SortedSetRange, Bool, Output -> Request.Request(RangeResult, Reply.Error)
 	zrange = |key, range, reverse, output| range_request("ZRANGE", [key].concat(range_args(range, reverse)), output)
 
-	zrange_store : Bytes.Bytes, Bytes.Bytes, Range, Bool -> Request.Request(I64, Reply.Error)
+	zrange_store : Bytes.Bytes, Bytes.Bytes, SortedSetRange, Bool -> Request.Request(I64, Reply.Error)
 	zrange_store = |destination, source, range, reverse| Request.new(Command.new("ZRANGESTORE", [destination, source].concat(range_args(range, reverse))), Reply.integer)
 
 	zrev_range : Bytes.Bytes, I64, I64, Output -> Request.Request(RangeResult, Reply.Error)
@@ -228,7 +228,7 @@ limit_args = |limit| match limit {
 	Present(value) => ["LIMIT", signed(value.offset), signed(value.count)]
 }
 
-range_args : SortedSets.Range, Bool -> List(Bytes.Bytes)
+range_args : SortedSets.SortedSetRange, Bool -> List(Bytes.Bytes)
 range_args = |range, reverse| {
 	rev = if reverse {
 		[Bytes.from_str("REV")]

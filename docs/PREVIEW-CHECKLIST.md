@@ -41,6 +41,27 @@ The maintainer approved preparing and publishing `0.1.0-rc1` on September 9,
 September 15. Publication checks are recorded below. Do not replace an RC asset in place; publish another version
 if package contents change.
 
+## Proposed 0.1.0-rc6
+
+This candidate is not published. It renames five public command types to avoid
+shadowing builtins added by newer Roc compilers:
+
+| Previous type | Replacement |
+| --- | --- |
+| `Commands.Arrays.Range` | `Commands.Arrays.ArrayRange` |
+| `Commands.Bitmaps.Encoding` | `Commands.Bitmaps.BitEncoding` |
+| `Commands.SortedSets.Range` | `Commands.SortedSets.SortedSetRange` |
+| `Commands.Streams.Stream` | `Commands.Streams.ReadStream` |
+| `Commands.Strings.Range` | `Commands.Strings.LcsRange` |
+
+Explicit type annotations need the new names. Record fields, union tags,
+command functions, and protocol behavior are unchanged. The repository's
+compiler and platform pins remain unchanged. Before publication, validate the
+reviewed source with the pinned compiler and an actual downstream consumer
+with `nightly-2026-10-27-de79a0f`, then follow the publication and fresh-consumer
+procedure above. Keep the existing rc5 archive and installation URLs intact
+until the new public archive has passed those checks.
+
 ## 0.1.0-rc4 publication (September 15)
 
 - [Release](https://github.com/jaredramirez/roc-redis/releases/tag/0.1.0-rc4),

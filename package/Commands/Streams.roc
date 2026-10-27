@@ -12,7 +12,7 @@ import /Resp
 Streams :: [].{
 	Field : { field : Bytes.Bytes, value : Bytes.Bytes }
 	Entry : { id : Bytes.Bytes, fields : Reply.Optional(List(Field)), claimed : Reply.Optional({ idle_ms : I64, deliveries : I64 }) }
-	Stream : { key : Bytes.Bytes, entries : List(Entry) }
+	ReadStream : { key : Bytes.Bytes, entries : List(Entry) }
 	ReferencePolicy : [Keep, Delete, Acknowledged]
 	DeleteResult : [Missing, Deleted, Referenced]
 	TrimStrategy : [Length(U64), MinimumId(Bytes.Bytes)]
@@ -76,10 +76,10 @@ Streams :: [].{
 		Reply.integer,
 	)
 
-	xread : NonEmpty.NonEmpty(Source), ReadOptions -> Request.Request(Reply.Optional(List(Stream)), Reply.Error)
+	xread : NonEmpty.NonEmpty(Source), ReadOptions -> Request.Request(Reply.Optional(List(ReadStream)), Reply.Error)
 	xread = |sources, options| Request.new(Command.new("XREAD", read_args(options).concat(source_args(sources))), |reply| read_reply(reply, False, False))
 
-	xread_group : Bytes.Bytes, Bytes.Bytes, NonEmpty.NonEmpty(Source), GroupReadOptions -> Request.Request(Reply.Optional(List(Stream)), Reply.Error)
+	xread_group : Bytes.Bytes, Bytes.Bytes, NonEmpty.NonEmpty(Source), GroupReadOptions -> Request.Request(Reply.Optional(List(ReadStream)), Reply.Error)
 	xread_group = |group, consumer, sources, options| {
 		args = ["GROUP", group, consumer].concat(read_args(options.read)).concat(number_option("CLAIM", options.claim_idle_ms)).concat(
 			if options.no_ack {
@@ -354,7 +354,7 @@ entry_reply = |reply, allow_deleted, allow_claimed| match reply {
 	_ => Err(UnexpectedReply({ actual: reply, expected: ArrayReply }))
 }
 
-read_reply : Resp.Resp, Bool, Bool -> Try(Reply.Optional(List(Streams.Stream)), Reply.Error)
+read_reply : Resp.Resp, Bool, Bool -> Try(Reply.Optional(List(Streams.ReadStream)), Reply.Error)
 read_reply = |reply, allow_deleted, allow_claimed| match reply {
 	NullArray => Ok(Absent)
 	_ => Decode.list(
