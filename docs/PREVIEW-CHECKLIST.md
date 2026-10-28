@@ -41,10 +41,34 @@ The maintainer approved preparing and publishing `0.1.0-rc1` on September 9,
 September 15. Publication checks are recorded below. Do not replace an RC asset in place; publish another version
 if package contents change.
 
-## Proposed 0.1.0-rc6
+## 0.1.0-rc6 publication (October 28)
 
-This candidate is not published. It renames five public command types to avoid
-shadowing builtins added by newer Roc compilers:
+- [Release](https://github.com/lukewilliamboswell/roc-redis/releases/tag/0.1.0-rc6),
+  source `aaf0a880d2db9de74532f11b4534c3c66a8d7b65`, reviewed in
+  [PR #1](https://github.com/lukewilliamboswell/roc-redis/pull/1).
+  The signed `0.1.0-rc6` tag points to that exact source revision and verifies
+  locally and on GitHub.
+- All 16 jobs in the exact-revision
+  [Linux/macOS CI run](https://github.com/lukewilliamboswell/roc-redis/actions/runs/40605590235)
+  passed before publication.
+- Published archive: `9NUUP4FRtPwLgJxKTTkn4usW9NKSruAhxudC1KdmiDbP.tar.zst`,
+  112,015 bytes. SHA-256:
+  `da727f6afa77d1fabe763642ca10f5cbac4b89c52a7380c274e10ee17f3031f8`.
+  The archive and checksum sidecar were downloaded from their actual public
+  URLs. The digest matches the reviewed candidate, the archive bytes match
+  that candidate, and its LICENSE and NOTICE match the repository copies.
+- On Apple silicon macOS, the complete [installation example](INSTALL.md) was
+  copied verbatim to a fresh directory with initially empty `XDG_CACHE_HOME`
+  and `ROC_CACHE_DIR`. The raw pinned compiler
+  `nightly-2026-09-07-14d9829` checked, tested, built (dev), and ran it against
+  the actual public rc6 URL, with no cache-seeding wrapper or checkout
+  dependency. Every command exited zero, and compilation reported zero
+  errors and warnings. The example contains no local expectations, so
+  `roc test` reported zero tests. Running it printed the GET command's byte
+  parts: `[[71, 69, 84], [101, 120, 97, 109, 112, 108, 101]]`.
+
+This release renames five public command types to avoid shadowing builtins
+added by newer Roc compilers:
 
 | Previous type | Replacement |
 | --- | --- |
@@ -56,11 +80,7 @@ shadowing builtins added by newer Roc compilers:
 
 Explicit type annotations need the new names. Record fields, union tags,
 command functions, and protocol behavior are unchanged. The repository's
-compiler and platform pins remain unchanged. Before publication, validate the
-reviewed source with the pinned compiler and an actual downstream consumer
-with `nightly-2026-10-27-de79a0f`, then follow the publication and fresh-consumer
-procedure above. Keep the existing rc5 archive and installation URLs intact
-until the new public archive has passed those checks.
+compiler and platform pins remain unchanged.
 
 ## 0.1.0-rc4 publication (September 15)
 
