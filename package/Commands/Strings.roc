@@ -28,8 +28,8 @@ Strings :: [].{
 	Pair : { key : Bytes.Bytes, value : Bytes.Bytes }
 	LcsIndices := { minimum_match_length : U64 ?? 0, with_match_length : Bool ?? False }
 	LcsMode : [Subsequence, Length, Indices(LcsIndices)]
-	Range : { start : U64, end : U64 }
-	LcsMatch : { first : Range, second : Range, length : Reply.Optional(U64) }
+	LcsRange : { start : U64, end : U64 }
+	LcsMatch : { first : LcsRange, second : LcsRange, length : Reply.Optional(U64) }
 	LcsResult : [Subsequence(Bytes.Bytes), Length(U64), Indices({ matches : List(LcsMatch), length : U64 })]
 
 	## Redis 7+. Positions are inclusive byte offsets, not Unicode characters.
@@ -227,7 +227,7 @@ nonnegative = |response| {
 	}
 }
 
-decode_lcs_range : Resp.Resp -> Try(Strings.Range, Reply.Error)
+decode_lcs_range : Resp.Resp -> Try(Strings.LcsRange, Reply.Error)
 decode_lcs_range = |response| match response {
 	Array([first, last]) => {
 		start = nonnegative(first)?

@@ -14,9 +14,9 @@ Bitmaps :: [].{
 
 	## Redis checks widths (signed 1..64, unsigned 1..63), offsets, and numeric
 	## range. No floating-point conversion is applied to bitfield values.
-	Encoding : [Signed(U8), Unsigned(U8)]
+	BitEncoding : [Signed(U8), Unsigned(U8)]
 	Offset : [Bits(U64), Elements(U64)]
-	Field : { encoding : Encoding, offset : Offset }
+	Field : { encoding : BitEncoding, offset : Offset }
 	FieldOperation : [Get(Field), Set({ field : Field, value : I64 }), Increment({ field : Field, value : I64 }), Overflow([Wrap, Saturate, Fail])]
 
 	get_bit : Bytes.Bytes, U64 -> Request.Request(Bool, Reply.Error)

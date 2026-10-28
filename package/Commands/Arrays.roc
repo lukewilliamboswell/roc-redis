@@ -10,7 +10,7 @@ import /Resp
 ## Redis sparse arrays (8.8+). Indices are unsigned; Redis validates its
 ## implementation-specific maximum. Holes are distinct from empty byte values.
 Arrays :: [].{
-	Range : { start : U64, end : U64 }
+	ArrayRange : { start : U64, end : U64 }
 	IndexedValue : { index : U64, value : Bytes.Bytes }
 	Bound : [First, Last, Index(U64)]
 	Predicate : [Exact(Bytes.Bytes), Contains(Bytes.Bytes), Glob(Bytes.Bytes), Regex(Bytes.Bytes)]
@@ -32,7 +32,7 @@ Arrays :: [].{
 	ardel : Bytes.Bytes, NonEmpty.NonEmpty(U64) -> Request.Request(I64, Reply.Error)
 	ardel = |key, indices| Request.new(Command.new("ARDEL", [key].concat(indices.to_list().map(decimal))), Reply.integer)
 
-	ardel_range : Bytes.Bytes, NonEmpty.NonEmpty(Range) -> Request.Request(I64, Reply.Error)
+	ardel_range : Bytes.Bytes, NonEmpty.NonEmpty(ArrayRange) -> Request.Request(I64, Reply.Error)
 	ardel_range = |key, ranges| {
 		var $args = [key]
 		for range in ranges.to_list() {
@@ -46,7 +46,7 @@ Arrays :: [].{
 
 	## Includes every hole in the inclusive range. Prefer ARSCAN for sparse
 	## data; a wide ARGETRANGE can produce a large response even for a missing key.
-	arget_range : Bytes.Bytes, Range -> Request.Request(List(Reply.Optional(Bytes.Bytes)), Reply.Error)
+	arget_range : Bytes.Bytes, ArrayRange -> Request.Request(List(Reply.Optional(Bytes.Bytes)), Reply.Error)
 	arget_range = |key, range| Request.new(Command.new("ARGETRANGE", [key, decimal(range.start), decimal(range.end)]), |reply| Decode.list(reply, Decode.optional_bytes))
 
 	armget : Bytes.Bytes, NonEmpty.NonEmpty(U64) -> Request.Request(List(Reply.Optional(Bytes.Bytes)), Reply.Error)
@@ -92,7 +92,7 @@ Arrays :: [].{
 		Decode.bytes_list,
 	)
 
-	arscan : Bytes.Bytes, Range, Reply.Optional(Positive.Positive) -> Request.Request(List(IndexedValue), Reply.Error)
+	arscan : Bytes.Bytes, ArrayRange, Reply.Optional(Positive.Positive) -> Request.Request(List(IndexedValue), Reply.Error)
 	arscan = |key, range, limit| Request.new(Command.new("ARSCAN", [key, decimal(range.start), decimal(range.end)].concat(limit_args(limit))), |reply| Decode.list(reply, indexed_pair))
 
 	## ARINFO is version-extensible introspection; the caller owns its schema.
@@ -145,7 +145,7 @@ Arrays :: [].{
 		)
 	}
 
-	arop : Bytes.Bytes, Range, Operation -> Request.Request(OperationResult, Reply.Error)
+	arop : Bytes.Bytes, ArrayRange, Operation -> Request.Request(OperationResult, Reply.Error)
 	arop = |key, range, operation| {
 		args = match operation {
 			Sum => ["SUM"]
