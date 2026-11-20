@@ -23,7 +23,7 @@ Server :: [].{
 	LatencyEvent : { event : Bytes.Bytes, timestamp : I64, milliseconds : I64, maximum_ms : I64 }
 
 	acl_dry_run : Bytes.Bytes, Command.Command -> Request.Request({}, Reply.Error)
-	acl_dry_run = |username, command| Request.new(Command.new("ACL", ["DRYRUN", username].concat(command.to_parts().map(Bytes.from_list))), Reply.okay)
+	acl_dry_run = |username, request_command| Request.new(Command.new("ACL", ["DRYRUN", username].concat(request_command.to_parts().map(Bytes.from_list))), Reply.okay)
 
 	acl_log : LogMode -> Request.Request(LogResult, Reply.Error)
 	acl_log = |mode| Request.new(
@@ -273,7 +273,7 @@ Server :: [].{
 	command_count = || Request.new(Command.new("COMMAND", ["COUNT"]), Reply.integer)
 
 	command_get_keys : Command.Command -> Request.Request(List(Bytes.Bytes), Reply.Error)
-	command_get_keys = |command| Request.new(Command.new("COMMAND", ["GETKEYS"].concat(command.to_parts().map(Bytes.from_list))), Decode.bytes_list)
+	command_get_keys = |request_command| Request.new(Command.new("COMMAND", ["GETKEYS"].concat(request_command.to_parts().map(Bytes.from_list))), Decode.bytes_list)
 
 	config_reset_stat : () -> Request.Request({}, Reply.Error)
 	config_reset_stat = || Request.new(Command.new("CONFIG", ["RESETSTAT"]), Reply.okay)

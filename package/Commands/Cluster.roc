@@ -173,10 +173,10 @@ Cluster :: [].{
 	set_config_epoch = |epoch| Request.new(Command.new("CLUSTER", ["SET-CONFIG-EPOCH"].concat([decimal(epoch)])), Reply.okay)
 
 	add_slots : NonEmpty.NonEmpty(U16) -> Request.Request({}, Reply.Error)
-	add_slots = |slots| Request.new(Command.new("CLUSTER", ["ADDSLOTS"].concat(slots.to_list().map(|slot| decimal(slot.to_u64())))), Reply.okay)
+	add_slots = |slot_ids| Request.new(Command.new("CLUSTER", ["ADDSLOTS"].concat(slot_ids.to_list().map(|slot| decimal(slot.to_u64())))), Reply.okay)
 
 	del_slots : NonEmpty.NonEmpty(U16) -> Request.Request({}, Reply.Error)
-	del_slots = |slots| Request.new(Command.new("CLUSTER", ["DELSLOTS"].concat(slots.to_list().map(|slot| decimal(slot.to_u64())))), Reply.okay)
+	del_slots = |slot_ids| Request.new(Command.new("CLUSTER", ["DELSLOTS"].concat(slot_ids.to_list().map(|slot| decimal(slot.to_u64())))), Reply.okay)
 
 	add_slots_range : NonEmpty.NonEmpty(SlotRange) -> Request.Request({}, Reply.Error)
 	add_slots_range = |ranges| {

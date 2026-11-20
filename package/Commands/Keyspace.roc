@@ -19,16 +19,16 @@ Keyspace :: [].{
 	MigrateOptions := { copy : Bool ?? False, replace : Bool ?? False, authentication : [None, Password(Bytes.Bytes), User({ username : Bytes.Bytes, password : Bytes.Bytes })] ?? None }
 	MigrateResult : [Migrated, NoKeys]
 	del : NonEmpty.NonEmpty(Bytes.Bytes) -> Request.Request(I64, Reply.Error)
-	del = |keys| Request.new(Command.new("DEL", keys.to_list()), Reply.integer)
+	del = |key_list| Request.new(Command.new("DEL", key_list.to_list()), Reply.integer)
 
 	exists : NonEmpty.NonEmpty(Bytes.Bytes) -> Request.Request(I64, Reply.Error)
-	exists = |keys| Request.new(Command.new("EXISTS", keys.to_list()), Reply.integer)
+	exists = |key_list| Request.new(Command.new("EXISTS", key_list.to_list()), Reply.integer)
 
 	unlink : NonEmpty.NonEmpty(Bytes.Bytes) -> Request.Request(I64, Reply.Error)
-	unlink = |keys| Request.new(Command.new("UNLINK", keys.to_list()), Reply.integer)
+	unlink = |key_list| Request.new(Command.new("UNLINK", key_list.to_list()), Reply.integer)
 
 	touch : NonEmpty.NonEmpty(Bytes.Bytes) -> Request.Request(I64, Reply.Error)
-	touch = |keys| Request.new(Command.new("TOUCH", keys.to_list()), Reply.integer)
+	touch = |key_list| Request.new(Command.new("TOUCH", key_list.to_list()), Reply.integer)
 
 	dump : Bytes.Bytes -> Request.Request(Reply.Optional(Bytes.Bytes), Reply.Error)
 	dump = |key| Request.new(Command.new("DUMP", [key]), Decode.optional_bytes)

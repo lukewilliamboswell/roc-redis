@@ -37,5 +37,5 @@ package
 		VectorSets,
 	]
 	{
-		roc: "nightly-2026-09-07-14d9829",
+		roc: "nightly-2026-11-19-54c51c9",
 	}

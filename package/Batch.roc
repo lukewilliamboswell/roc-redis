@@ -14,7 +14,7 @@ Batch(value, decode_err) :: {
 
 	## Explicit custom composition. Execute supplies exactly one reply per command.
 	new : List(Command.Command), (List(Resp.Resp) -> Try(value, error)) -> Batch(value, error)
-	new = |commands, decode| Batch.{ commands, decoder: decode }
+	new = |requests, decoder| Batch.{ commands: requests, decoder: decoder }
 
 	commands : Batch(value, error) -> List(Command.Command)
 	commands = |batch| batch.commands

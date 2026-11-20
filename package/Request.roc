@@ -11,7 +11,7 @@ Request(value, decode_err) :: {
 	Error(error) : [ServerError(Bytes.Bytes), ReplyDecodeFailure(error)]
 
 	new : Command.Command, (Resp.Resp -> Try(value, error)) -> Request(value, error)
-	new = |command, decode| Request.{ command, decoder: decode }
+	new = |request_command, decoder| Request.{ command: request_command, decoder: decoder }
 
 	command : Request(value, error) -> Command.Command
 	command = |request| request.command

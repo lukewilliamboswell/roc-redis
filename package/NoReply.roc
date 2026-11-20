@@ -9,7 +9,7 @@ NoReply :: { commands : List(Command.Command) }.{
 	## Escape hatch: every command here must produce zero replies on this stream.
 	## Do not use for commands that reply and subsequently close the connection.
 	unsafe_assume_suppressed : List(Command.Command) -> NoReply
-	unsafe_assume_suppressed = |commands| NoReply.{ commands: commands }
+	unsafe_assume_suppressed = |requests| NoReply.{ commands: requests }
 
 	commands : NoReply -> List(Command.Command)
 	commands = |plan| plan.commands
